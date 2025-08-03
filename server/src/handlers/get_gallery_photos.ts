@@ -1,8 +1,20 @@
 
+import { db } from '../db';
+import { galleryPhotosTable } from '../db/schema';
 import { type GalleryPhoto } from '../schema';
+import { eq, asc } from 'drizzle-orm';
 
-export async function getGalleryPhotos(): Promise<GalleryPhoto[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all active gallery photos ordered by display_order.
-    return [];
-}
+export const getGalleryPhotos = async (): Promise<GalleryPhoto[]> => {
+  try {
+    const results = await db.select()
+      .from(galleryPhotosTable)
+      .where(eq(galleryPhotosTable.is_active, true))
+      .orderBy(asc(galleryPhotosTable.display_order))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Gallery photos retrieval failed:', error);
+    throw error;
+  }
+};

@@ -1,18 +1,28 @@
 
+import { db } from '../db';
+import { galleryPhotosTable } from '../db/schema';
 import { type CreateGalleryPhotoInput, type GalleryPhoto } from '../schema';
 
-export async function createGalleryPhoto(input: CreateGalleryPhotoInput): Promise<GalleryPhoto> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new gallery photo and persisting it in the database.
-    return {
-        id: 0, // Placeholder ID
+export const createGalleryPhoto = async (input: CreateGalleryPhotoInput): Promise<GalleryPhoto> => {
+  try {
+    // Insert gallery photo record
+    const result = await db.insert(galleryPhotosTable)
+      .values({
         title: input.title,
         description: input.description,
         image_url: input.image_url,
         thumbnail_url: input.thumbnail_url,
         category: input.category,
-        display_order: input.display_order,
-        is_active: true,
-        created_at: new Date()
-    } as GalleryPhoto;
-}
+        display_order: input.display_order
+      })
+      .returning()
+      .execute();
+
+    // Return the created gallery photo
+    const galleryPhoto = result[0];
+    return galleryPhoto;
+  } catch (error) {
+    console.error('Gallery photo creation failed:', error);
+    throw error;
+  }
+};

@@ -1,16 +1,24 @@
 
+import { db } from '../db';
+import { serviceAdvantagesTable } from '../db/schema';
 import { type CreateServiceAdvantageInput, type ServiceAdvantage } from '../schema';
 
-export async function createServiceAdvantage(input: CreateServiceAdvantageInput): Promise<ServiceAdvantage> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new service advantage and persisting it in the database.
-    return {
-        id: 0, // Placeholder ID
+export const createServiceAdvantage = async (input: CreateServiceAdvantageInput): Promise<ServiceAdvantage> => {
+  try {
+    // Insert service advantage record
+    const result = await db.insert(serviceAdvantagesTable)
+      .values({
         title: input.title,
         description: input.description,
         icon_name: input.icon_name,
-        display_order: input.display_order,
-        is_active: true,
-        created_at: new Date()
-    } as ServiceAdvantage;
-}
+        display_order: input.display_order
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Service advantage creation failed:', error);
+    throw error;
+  }
+};
